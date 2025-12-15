@@ -13,7 +13,9 @@ An intelligent travel itinerary planning system based on AI + RAG, providing per
 </div>
 
 ---
-
+## 演示
+![alt text](<case3_modify (1).png>)
+---
 ## ✨ Key Features
 
 ### 🤖 AI-Powered Planning
@@ -464,19 +466,10 @@ Contributions are welcome! Please feel free to submit issues and pull requests.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+This project is licensed under the MIT License 
 ---
 
-## 📧 Contact
-
-- 📧 Email: your.email@example.com
-- 🐙 GitHub: [@yourusername](https://github.com/yourusername)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/travel_webgis/discussions)
-
----
-
-## 🎯 Future Roadmap
+## 🎯 Future Roadmap(maybe?)
 
 - [ ] Support for more city travel data
 - [ ] Multi-city itinerary planning

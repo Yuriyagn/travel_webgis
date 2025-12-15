@@ -13,7 +13,9 @@
 </div>
 
 ---
-
+## 演示
+![alt text](<case3_modify (1).png>)
+---
 ## ✨ 核心特性
 
 ### 🤖 AI 智能规划
@@ -464,19 +466,13 @@ pip install jieba>=0.42.1
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
+本项目采用 MIT 许可证。
+
+
 
 ---
 
-## 📧 联系方式
-
-- 📧 Email: your.email@example.com
-- 🐙 GitHub: [@yourusername](https://github.com/yourusername)
-- 💬 讨论区: [GitHub Discussions](https://github.com/yourusername/travel_webgis/discussions)
-
----
-
-## 🎯 未来规划
+## 🎯 未来规划(Maybe？)
 
 - [ ] 支持更多城市旅游数据
 - [ ] 多城市联动行程规划
