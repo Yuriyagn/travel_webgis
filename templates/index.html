@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Power by Yuriyagn | AI + WebGIS</title>
+
+
+  <script src="https://webapi.amap.com/maps?v=2.0&key={{ amap_key }}&plugin=AMap.Geocoder,AMap.Driving,AMap.Walking,AMap.Transfer,AMap.MapType"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  
+  <style>
+    /* ... (所有 CSS 样式保持不变，与你之前的文件相同) ... */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    #container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* 侧边栏 */
+    .sidebar {
+      width: 380px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .sidebar-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .sidebar-header h1 {
+      font-size: 22px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .sidebar-header p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+      background: white;
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .control-group h3 {
+      font-size: 15px;
+      color: #333;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-group h3::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+    }
+
+    select, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+      background: #f5f7ff;
+    }
+
+    /* 地图容器 */
+    #map {
+      flex: 1;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* 地图工具栏 */
+    .map-toolbar {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      padding: 12px;
+      z-index: 999;
+      display: flex;
+      gap: 10px;
+    }
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 5px;
+      background-color: white;
+      min-width: 180px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .dropdown-content button {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      background: white;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 0;
+    }
+
+    .dropdown-content button:hover {
+      background: #f5f5f5;
+      color: #667eea;
+    }
+
+    .dropdown-content button:not(:last-child) {
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .dropdown.show .dropdown-content {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .dropdown-content::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      right: 15px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid white;
+    }
+    .map-toolbar button {
+      padding: 10px 16px;
+      border: none;
+      background: #f5f5f5;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      color: #333;
+    }
+
+    .map-toolbar button:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    /* 信息窗口样式 */
+    .info-window {
+      padding: 5px;
+      min-width: 200px;
+    }
+
+    .info-window h4 {
+      color: #667eea;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .info-window p {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+      margin: 5px 0;
+    }
+
+    .info-window .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .info-window .tag {
+      background: #f0f0f0;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #666;
+    }
+
+    /* 加载动画 */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 景点列表 */
+    .poi-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .poi-item {
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .poi-item:hover {
+      background: #f0f0f0;
+      border-left-color: #667eea;
+      transform: translateX(5px);
+    }
+
+    .poi-item.active {
+      background: #e8ebff;
+      border-left-color: #667eea;
+    }
+
+    .poi-item h4 {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .poi-item p {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .poi-item .day-badge {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-right: 6px;
+    }
+
+    /* 消息提示 */
+    .message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.success {
+      border-left: 4px solid #4caf50;
+    }
+
+    .message.error {
+      border-left: 4px solid #f44336;
+    }
+
+    .message.warning {
+      border-left: 4px solid #ff9800;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+    
+    /* 聊天/查询框 */
+    .chat-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      max-width: 90%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      display: flex;
+      padding: 10px;
+      z-index: 1001;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+      font-family: inherit;
+      margin-right: 10px;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .chat-btn {
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .chat-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .chat-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h1>🗺️ 武汉旅游智能规划</h1>
+        <p>AI 驱动 · WebGIS 可视化 · 真实路径规划</p>
+      </div>
+
+      <div class.sidebar-content">
+        <div class="control-group">
+          <h3>📋 行程 JSON 数据</h3>
+          <textarea 
+            id="planInput" 
+            placeholder='粘贴行程规划 JSON 数据，或使用下方的智能生成...（支持武汉）'
+          ></textarea>
+          <button class="btn" onclick="loadTripPlan()" id="loadPlanBtn">加载/重置行程</button>
+          <button class="btn btn-secondary" onclick="loadSamplePlan()">加载示例数据</button>
+        </div>
+
+        <div class="control-group" id="planLocations" style="display: none;">
+          <h3>📍 行程地点</h3>
+          <div class="poi-list" id="planPoiList">
+            </div>
+        </div>
+
+        <div class="control-group">
+          <h3>🚗 路径规划</h3>
+          <select id="travelMode">
+            <option value="driving">驾车</option>
+            <option value="walking">步行</option>
+            <option value="transit">公交</option>
+          </select>
+          <button class="btn btn-secondary" onclick="clearRoute()" style="margin-top: 10px;">清除路线</button>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p id="loadingText">正在处理...</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="map">
+      <div class="map-toolbar">
+        <button onclick="resetView()">🏠 重置视图</button>
+        <button onclick="toggleSatellite()">🛰️ 卫星图</button>
+        <button onclick="togglePlanVisibility()" id="togglePlanBtn">👁️ 隐藏行程</button>
+        <div class="dropdown" id="exportDropdown">
+          <button onclick="toggleExportMenu(event)">📥 导出 ▼</button>
+          <div class="dropdown-content">
+            <button onclick="exportJSON()">
+              📄 导出 JSON 数据
+            </button>
+            <button onclick="exportMapImage()">
+              🖼️ 导出地图图片
+            </button>
+            <button onclick="exportTextGuide()">
+              📝 导出文字攻略
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-container">
+    <input 
+      type="text" 
+      id="queryInput" 
+      class="chat-input" 
+      placeholder="例如: 武汉三天大学生旅游攻略 (或: 第一天加上黄鹤楼)"
+      onkeydown="handleQueryKeydown(event)"
+    />
+    <button class="chat-btn" id="queryBtn" onclick="submitChatQuery()">
+      🚀 智能生成/修改
+    </button>
+  </div>
+
+  <div class="message" id="message"></div>
+
+  <script>
+    let map, geocoder, driving, walking, transfer;
+    let planMarkers = [];
+    let currentRoute = null;
+    let isSatellite = false;
+    let isPlanVisible = true;
+    let currentInfoWindow = null;
+
+    // -----------------------------------------------------------------
+    // 
+    // 🆕 核心变更：全局行程上下文
+    // 
+    // `currentPlanContext` 保存当前地图上显示的 *已地理编码* 的行程对象。
+    // `currentTripPlan` (旧) 已合并入此概念，用于导出。
+    // 
+    // -----------------------------------------------------------------
+    let currentPlanContext = null;
+
+
+    // 行程活动类型图标映射
+    const activityIcons = {
+      '景点': '🏛️', '美食': '🍜', '住宿': '🏨',
+      '交通': '🚗', '购物': '🛍️', '休息': '☕'
+    };
+
+    // 每天的颜色
+    const dayColors = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a'];
+
+    // ==================== 初始化 ====================
+
+    function initMap() {
+      map = new AMap.Map('map', {
+        center: [114.305392, 30.593099],
+        zoom: 11,
+        viewMode: '3D',
+        pitch: 40,
+        mapStyle: 'amap://styles/normal',
+        dragEnable: true, zoomEnable: true, doubleClickZoom: true,
+        keyboardEnable: true, scrollWheel: true, touchZoom: true,
+        rotateEnable: true, pitchEnable: true, resizeEnable: true,
+      });
+
+      geocoder = new AMap.Geocoder({ city: '武汉' });
+      driving = new AMap.Driving({ map: map, panel: null });
+      walking = new AMap.Walking({ map: map, panel: null });
+      transfer = new AMap.Transfer({ map: map, panel: null, city: '武汉市' });
+
+      map.on('complete', () => console.log('地图加载完成'));
+      map.on('click', (e) => {
+        console.log('点击位置:', e.lnglat.getLng(), e.lnglat.getLat());
+        if (currentInfoWindow) {
+          currentInfoWindow.close();
+          currentInfoWindow = null;
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        const dropdown = document.getElementById('exportDropdown');
+        if (dropdown && !dropdown.contains(event.target)) {
+          closeExportMenu();
+        }
+      });
+    }
+
+    // ==================== 🆕 核心 AI 交互 (统一入口) ====================
+
+    function handleQueryKeydown(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        submitChatQuery();
+      }
+    }
+
+    async function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /**
+     * 提交 AI 聊天查询 (创建 或 修改)
+     */
+    async function submitChatQuery() {
+      const queryInput = document.getElementById('queryInput');
+      const queryBtn = document.getElementById('queryBtn');
+      const query = queryInput.value.trim();
+
+      if (!query) {
+        showMessage('请输入你的旅行需求', 'error');
+        return;
+      }
+
+      queryBtn.disabled = true;
+      queryBtn.innerText = '生成中...';
+      
+      try {
+        // 步骤 1: 模拟前端状态
+        showMessage('正在思考用户意图...', 'warning');
+        
+        // 准备发送的数据 (包含查询 和 *当前上下文*)
+        const payload = {
+          query: query,
+          current_plan_json: currentPlanContext ? JSON.stringify(currentPlanContext) : null
+        };
+        
+        // 步骤 2: 调用统一的 /api/chat 接口
+        showMessage('正在调用 AI 大模型...', 'warning');
+        
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || '生成失败，请检查后端日志');
+        }
+
+        // 步骤 3: 成功
+        showMessage(result.message || '行程已更新', 'success');
+        await sleep(500);
+
+        // 步骤 4: 
+        // 无论是创建还是修改，都用返回的新数据覆盖所有状态
+        
+        // 4.1 更新全局上下文
+        currentPlanContext = result.data; // result.data 是已地理编码的对象
+        
+        // 4.2 更新左侧的 JSON 文本框
+        const planInput = document.getElementById('planInput');
+        // 注意：我们把地理编码后的完整对象放入文本框，以便下次修改时AI能看到经纬度
+        planInput.value = JSON.stringify(currentPlanContext, null, 2);
+        
+        // 4.3 重新绘制地图
+        displayTripPlan(currentPlanContext);
+        
+        // 4.4 清空输入框
+        queryInput.value = '';
+
+      } catch (error) {
+        console.error('AI 查询失败:', error);
+        showMessage(`规划失败: ${error.message}`, 'error');
+      } finally {
+        queryBtn.disabled = false;
+        queryBtn.innerText = '🚀 智能生成/修改';
+      }
+    }
+
+
+    // ==================== 手动 JSON 加载功能 ====================
+
+    async function loadTripPlan() {
+      const planText = document.getElementById('planInput').value.trim();
+      
+      if (!planText) {
+        showMessage('请粘贴行程 JSON 数据', 'error');
+        return;
+      }
+
+      let planData;
+      try {
+        planData = JSON.parse(planText);
+      } catch (e) {
+        showMessage('JSON 格式错误，请检查', 'error');
+        return;
+      }
+
+      // 🆕 适配：后端 /api/plan 期望的格式是 {"trip_plan": {...}}
+      // 但我们的上下文可能是完整的 geocoded_obj
+      // 我们统一一下：如果 planData.trip_plan 不存在，就认为 planData *就是* trip_plan 对象
+      let payload;
+      if (planData.trip_plan) {
+         payload = planData; // 已经是 {trip_plan: ...} 格式
+      } else {
+         payload = { "trip_plan": planData }; // 手动包装
+      }
+
+      showLoading(true, '正在获取地点经纬度...');
+      document.getElementById('loadPlanBtn').disabled = true;
+
+      try {
+        // 仍使用 /api/plan 接口处理手动粘贴的 JSON
+        const response = await fetch('/api/plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          // 🆕 核心变更：更新全局上下文
+          currentPlanContext = result.data; // result.data 是已地理编码的对象
+
+          displayTripPlan(result.data);
+          showMessage(result.message || '行程加载成功', 'success');
+        } else {
+          showMessage(result.error || '处理失败', 'error');
+        }
+      } catch (error) {
+        console.error('请求错误:', error);
+        showMessage('网络错误: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+        document.getElementById('loadPlanBtn').disabled = false;
+      }
+    }
+
+    function loadSamplePlan() {
+      const sampleData = {
+        "destination": "武汉",
+        "duration_days": 3,
+        "travel_type": "亲子游",
+        "days": [
+          {
+            "day_number": 1,
+            "title": "武昌经典文化之旅",
+            "activities": [
+              { "type": "景点", "name": "黄鹤楼", "description": "登高远眺长江", "estimated_duration_hours": 2.0 },
+              { "type": "美食", "name": "户部巷", "description": "品尝武汉小吃", "estimated_duration_hours": 1.5 },
+              { "type": "景点", "name": "昙华林", "description": "文艺范老街", "estimated_duration_hours": 1.0 }
+            ]
+          },
+          {
+            "day_number": 2,
+            "title": "东湖风光",
+            "activities": [
+              { "type": "景点", "name": "东湖磨山景区", "description": "欣赏湖光山色", "estimated_duration_hours": 3.0 },
+              { "type": "景点", "name": "湖北省博物馆", "description": "观看编钟演出", "estimated_duration_hours": 2.0 }
+            ]
+          }
+        ],
+        "notes": ["建议提前预约湖北省博物馆门票"]
+      };
+
+      // 🆕 适配：文本框里放的是 *内部对象*
+      document.getElementById('planInput').value = JSON.stringify(sampleData, null, 2);
+      showMessage('示例数据已加载，点击"加载/重置行程"按钮', 'success');
+      
+      // 🆕 清除上下文，因为示例还未被加载
+      currentPlanContext = null; 
+    }
+
+    /**
+     * 绘制行程到地图 (此函数不变)
+     * @param {object} planData - 已地理编码的行程对象
+     */
+    function displayTripPlan(planData) {
+      planMarkers.forEach(marker => map.remove(marker));
+      planMarkers = [];
+      isPlanVisible = true;
+      document.getElementById('togglePlanBtn').innerText = '👁️ 隐藏行程';
+
+      const locations = planData.locations_summary || [];
+      if (locations.length === 0) {
+        showMessage('未找到有效地点', 'error');
+        return;
+      }
+
+      const bounds = new AMap.Bounds();
+      let markersAdded = 0;
+      let failedLocations = planData.failed_locations || [];
+      const listContainer = document.getElementById('planPoiList');
+      listContainer.innerHTML = '';
+      const dayRoutes = {};
+
+      planData.days.forEach((day, dayIndex) => {
+        day.activities.forEach((activity) => {
+          if (!dayRoutes[day.day_number]) dayRoutes[day.day_number] = [];
+          if (!activity.location) {
+            console.warn(`地点未找到: Day ${day.day_number} - ${activity.name}`);
+            return;
+          }
+
+          const { longitude, latitude } = activity.location;
+          if (!longitude || !latitude || isNaN(longitude) || isNaN(latitude)) {
+            console.warn(`无效坐标: ${activity.name}`);
+            return;
+          }
+
+          const position = [longitude, latitude];
+          bounds.extend(position);
+          dayRoutes[day.day_number].push(position);
+
+          const color = dayColors[dayIndex % dayColors.length];
+          const icon = activityIcons[activity.type] || '📍';
+          
+          const marker = new AMap.Marker({
+            position: position,
+            title: activity.name,
+            label: {
+              content: `<div style="background: ${color}; color: white; padding: 5px 10px; border-radius: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 12px; font-weight: 600;">${icon} ${activity.name}</div>`,
+              offset: new AMap.Pixel(0, -40)
+            },
+            extData: { day: day.day_number, activity: activity }
+          });
+
+          marker.on('click', (e) => {
+            showActivityInfo(activity, day.day_number, marker);
+            e.stopPropagation();
+          });
+
+          map.add(marker);
+          planMarkers.push(marker);
+          markersAdded++;
+
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'poi-item';
+          itemDiv.innerHTML = `
+            <h4><span class="day-badge">Day ${day.day_number}</span> ${icon} ${activity.name}</h4>
+            <p>${activity.description || ''}</p>
+          `;
+          itemDiv.onclick = () => {
+            map.setZoomAndCenter(16, position, false, 500);
+            marker.emit('click', { stopPropagation: () => {} });
+          };
+          listContainer.appendChild(itemDiv);
+        });
+      });
+
+      Object.keys(dayRoutes).forEach(dayNum => {
+        const dayIndex = parseInt(dayNum) - 1;
+        const color = dayColors[dayIndex % dayColors.length];
+        const path = dayRoutes[dayNum];
+        
+        if (path.length > 1) {
+          const polyline = new AMap.Polyline({
+            path: path,
+            borderWeight: 2, strokeColor: color, strokeWeight: 4,
+            strokeOpacity: 0.8, strokeStyle: 'solid',
+            lineJoin: 'round', lineCap: 'round',
+            zIndex: 50, showDir: true,
+            extData: { type: 'route', day: dayNum }
+          });
+          map.add(polyline);
+          planMarkers.push(polyline);
+        }
+      });
+
+      if (markersAdded > 0) {
+        setTimeout(() => {
+          map.setFitView(planMarkers, false, [80, 80, 80, 80]);
+          setTimeout(() => map.setStatus({ dragEnable: true, zoomEnable: true, scrollWheel: true }), 100);
+        }, 300);
+      } else {
+        showMessage('所有地点都未找到有效坐标', 'error');
+        document.getElementById('planLocations').style.display = 'none';
+        return;
+      }
+      document.getElementById('planLocations').style.display = 'block';
+    }
+
+    // ==================== 工具函数 (地图控制, 导出等) ====================
+    // (这部分代码与你之前的文件完全相同，无需修改)
+
+    function togglePlanVisibility() {
+      isPlanVisible = !isPlanVisible;
+      const btn = document.getElementById('togglePlanBtn');
+      if (isPlanVisible) {
+        planMarkers.forEach(item => item.show());
+        btn.innerText = '👁️ 隐藏行程';
+        showMessage('行程已显示', 'success');
+      } else {
+        planMarkers.forEach(item => item.hide());
+        btn.innerText = '👁️‍🗨️ 显示行程';
+        showMessage('行程已隐藏', 'success');
+      }
+    }
+
+    function clearRoute() {
+      if (currentRoute) map.remove(currentRoute);
+      currentRoute = null;
+      driving.clear(); walking.clear(); transfer.clear();
+      showMessage('路线已清除', 'success');
+    }
+
+    function resetView() {
+      if (planMarkers.length > 0) {
+        map.setFitView(planMarkers, false, [80, 80, 80, 80]);
+      } else {
+        map.setZoomAndCenter(11, [114.305392, 30.593099], false, 500);
+      }
+      showMessage('视图已重置', 'success');
+    }
+
+    function toggleSatellite() {
+      isSatellite = !isSatellite;
+      map.setMapStyle(isSatellite ? 'amap://styles/satellite' : 'amap://styles/normal');
+      event.target.innerText = isSatellite ? '🗺️ 标准图' : '🛰️ 卫星图';
+    }
+
+    function toggleExportMenu(event) {
+      event.stopPropagation();
+      document.getElementById('exportDropdown').classList.toggle('show');
+    }
+
+    function closeExportMenu() {
+      document.getElementById('exportDropdown').classList.remove('show');
+    }
+
+    function exportJSON() {
+      closeExportMenu();
+      if (currentPlanContext) {
+        // 导出时，我们导出 *内部* 的 trip_plan 对象，这更干净
+        const exportData = currentPlanContext.trip_plan ? currentPlanContext.trip_plan : currentPlanContext;
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `武汉旅游规划_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showMessage('JSON 数据已导出', 'success');
+      } else {
+        showMessage('暂无行程数据', 'error');
+      }
+    }
+
+    async function exportMapImage() {
+      closeExportMenu();
+      if (planMarkers.length === 0) {
+        showMessage('暂无行程数据，无法导出地图', 'error');
+        return;
+      }
+      showLoading(true, '正在生成地图图片...');
+
+      try {
+        const toolbar = document.querySelector('.map-toolbar');
+        const sidebar = document.querySelector('.sidebar');
+        const chatbox = document.querySelector('.chat-container');
+        const originalToolbarDisplay = toolbar.style.display;
+        const originalSidebarDisplay = sidebar.style.display;
+        const originalChatboxDisplay = chatbox.style.display;
+        
+        toolbar.style.display = 'none';
+        sidebar.style.display = 'none';
+        chatbox.style.display = 'none';
+        
+        if (currentInfoWindow) currentInfoWindow.close();
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        if (typeof html2canvas === 'undefined') {
+          await loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        const mapContainer = document.getElementById('map');
+        const mapCanvas = mapContainer.querySelector('.amap-layer');
+        const mapMapsDiv = mapContainer.querySelector('.amap-maps');
+        
+        if (!mapCanvas) throw new Error('无法找到地图 Canvas');
+        
+        const canvasWidth = mapCanvas.width;
+        const canvasHeight = mapCanvas.height;
+        
+        const compositeCanvas = document.createElement('canvas');
+        compositeCanvas.width = canvasWidth;
+        compositeCanvas.height = canvasHeight;
+        const compositeCtx = compositeCanvas.getContext('2d');
+        
+        compositeCtx.drawImage(mapCanvas, 0, 0);
+        
+        try {
+          const mapMapsCanvas = await html2canvas(mapMapsDiv, {
+            backgroundColor: null, scale: 1, logging: false,
+            width: mapMapsDiv.offsetWidth, height: mapMapsDiv.offsetHeight,
+            useCORS: true, allowTaint: true,
+            windowWidth: mapMapsDiv.offsetWidth, windowHeight: mapMapsDiv.offsetHeight
+          });
+          
+          if (mapMapsCanvas.width > 0 && mapMapsCanvas.height > 0) {
+            const scale = Math.min(canvasWidth / mapMapsCanvas.width, canvasHeight / mapMapsCanvas.height);
+            const scaledWidth = mapMapsCanvas.width * scale;
+            const scaledHeight = mapMapsCanvas.height * scale;
+            const offsetX = (canvasWidth - scaledWidth) / 2;
+            const offsetY = (canvasHeight - scaledHeight) / 2;
+            compositeCtx.drawImage(mapMapsCanvas, offsetX, offsetY, scaledWidth, scaledHeight);
+          }
+        } catch (markerError) {
+          console.warn('标记层截取失败:', markerError);
+          showMessage('警告: 仅导出地图底图', 'warning');
+        }
+
+        const finalCanvas = document.createElement('canvas');
+        const ctx = finalCanvas.getContext('2d');
+        const infoHeight = 150;
+        finalCanvas.width = compositeCanvas.width;
+        finalCanvas.height = compositeCanvas.height + infoHeight;
+
+        ctx.drawImage(compositeCanvas, 0, 0);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, compositeCanvas.height, finalCanvas.width, infoHeight);
+        ctx.strokeStyle = '#e0e0e0';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, compositeCanvas.height);
+        ctx.lineTo(finalCanvas.width, compositeCanvas.height);
+        ctx.stroke();
+
+        const scale = compositeCanvas.width / 1920;
+        const baseSize = Math.max(scale, 0.5);
+
+        ctx.fillStyle = '#667eea';
+        ctx.font = `bold ${Math.floor(48 * baseSize)}px Microsoft YaHei, sans-serif`;
+        ctx.fillText('🗺️ 武汉旅游行程规划', Math.floor(50 * baseSize), compositeCanvas.height + Math.floor(50 * baseSize));
+        
+        ctx.fillStyle = '#666666';
+        ctx.font = `${Math.floor(28 * baseSize)}px Microsoft YaHei, sans-serif`;
+        const dateStr = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+        ctx.fillText(`导出日期: ${dateStr}`, Math.floor(50 * baseSize), compositeCanvas.height + Math.floor(90 * baseSize));
+        
+        if (currentPlanContext && currentPlanContext.days) {
+          const totalActivities = currentPlanContext.days.reduce((sum, day) => sum + (day.activities ? day.activities.length : 0), 0);
+          ctx.fillText(`行程: ${currentPlanContext.days.length} 天 | 地点: ${totalActivities} 个`, 
+            Math.floor(50 * baseSize), 
+            compositeCanvas.height + Math.floor(125 * baseSize)
+          );
+        
+          let legendX = finalCanvas.width - Math.floor(600 * baseSize);
+          const legendY = compositeCanvas.height + Math.floor(60 * baseSize);
+          ctx.font = `bold ${Math.floor(28 * baseSize)}px Microsoft YaHei, sans-serif`;
+          ctx.fillStyle = '#333333';
+          ctx.fillText('线路:', legendX, legendY);
+          legendX += Math.floor(80 * baseSize);
+          
+          const daysToShow = Math.min(currentPlanContext.days.length, 5);
+          currentPlanContext.days.slice(0, daysToShow).forEach((day, index) => {
+            const color = dayColors[index % dayColors.length];
+            ctx.fillStyle = color;
+            ctx.fillRect(legendX, legendY - Math.floor(20 * baseSize), Math.floor(40 * baseSize), Math.floor(8 * baseSize));
+            ctx.fillStyle = '#555555';
+            ctx.font = `${Math.floor(24 * baseSize)}px Microsoft YaHei, sans-serif`;
+            ctx.fillText(`Day${day.day_number}`, legendX + Math.floor(45 * baseSize), legendY);
+            legendX += Math.floor(110 * baseSize);
+          });
+        }
+
+        ctx.fillStyle = 'rgba(102, 126, 234, 0.4)';
+        ctx.font = `${Math.floor(20 * baseSize)}px Arial, sans-serif`;
+        ctx.textAlign = 'right';
+        ctx.fillText('Generated by AI Travel Planner', 
+          finalCanvas.width - Math.floor(30 * baseSize), 
+          finalCanvas.height - Math.floor(20 * baseSize)
+        );
+        ctx.textAlign = 'left';
+
+        finalCanvas.toBlob(function(blob) {
+          if (!blob) throw new Error('图片生成失败');
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+a.href = url;
+          a.download = `武汉旅游地图_${new Date().toISOString().split('T')[0]}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          showLoading(false);
+          showMessage('地图图片已成功导出 ✓', 'success');
+          
+          toolbar.style.display = originalToolbarDisplay;
+          sidebar.style.display = originalSidebarDisplay;
+          chatbox.style.display = originalChatboxDisplay;
+        }, 'image/png', 1.0);
+
+      } catch (error) {
+        console.error('导出失败详情:', error);
+        showLoading(false);
+        showMessage('导出失败: ' + error.message, 'error');
+        
+        document.querySelector('.map-toolbar').style.display = '';
+        document.querySelector('.sidebar').style.display = '';
+        document.querySelector('.chat-container').style.display = '';
+      }
+    }
+    /**
+ * 🆕 导出文字版攻略
+ */
+async function exportTextGuide() {
+  closeExportMenu();
+  
+  if (!currentPlanContext) {
+    showMessage('暂无行程数据，无法导出攻略', 'error');
+    return;
+  }
+  
+  showLoading(true, '正在生成文字攻略，请稍候...');
+  
+  try {
+    // 发送请求到后端生成攻略
+    const response = await fetch('/api/export-guide', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trip_plan: currentPlanContext })
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || '生成失败');
+    }
+    
+    // 获取生成的攻略文本
+    const guideText = result.guide_text;
+    
+    // 生成文件名
+    const destination = currentPlanContext.destination || '旅游';
+    const days = currentPlanContext.duration_days || currentPlanContext.days?.length || '';
+    const fileName = `${destination}${days}日游_旅游攻略_${new Date().toISOString().split('T')[0]}.txt`;
+    
+    // 创建Blob并下载
+    const blob = new Blob([guideText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showLoading(false);
+    showMessage('文字攻略已成功导出 ✓', 'success');
+    
+  } catch (error) {
+    console.error('导出攻略失败:', error);
+    showLoading(false);
+    showMessage('导出失败: ' + error.message, 'error');
+  }
+}
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    function showActivityInfo(activity, dayNumber, marker) {
+      const icon = activityIcons[activity.type] || '📍';
+      const tags = activity.tags ? activity.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : '';
+      
+      if (currentInfoWindow) currentInfoWindow.close();
+      
+      const infoWindow = new AMap.InfoWindow({
+        content: `
+          <div class="info-window">
+            <h4>${icon} ${activity.name}</h4>
+            <p><strong>Day ${dayNumber}</strong> - ${activity.type}</p>
+            <p>${activity.description || ''}</p>
+            ${activity.estimated_duration_hours ? `<p>⏱️ 预计时长: ${activity.estimated_duration_hours} 小时</p>` : ''}
+            <p>📍 ${activity.location.formatted_address}</p>
+            ${tags ? `<div class="tags">${tags}</div>` : ''}
+          </div>
+        `,
+        offset: new AMap.Pixel(0, -30)
+      });
+      
+      infoWindow.open(map, marker.getPosition());
+      currentInfoWindow = infoWindow;
+    }
+
+    function showLoading(show, text = '正在处理...') {
+      document.getElementById('loading').classList.toggle('show', show);
+      document.getElementById('loadingText').textContent = text;
+    }
+
+    function showMessage(text, type = 'success') {
+      const msgEl = document.getElementById('message');
+      msgEl.textContent = text;
+      msgEl.className = `message ${type} show`;
+      const duration = (type === 'error' || type === 'warning') ? 5000 : 3000;
+      setTimeout(() => msgEl.classList.remove('show'), duration);
+    }
+
+    // 页面加载完成后初始化
+    window.onload = initMap;
+  </script>
+</body>
+</html>

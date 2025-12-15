@@ -1,0 +1,422 @@
+{
+  "黄鹤楼": {
+    "status": "success",
+    "name": "黄鹤楼",
+    "address": "湖北省武汉市武昌区黄鹤楼",
+    "longitude": 114.302467,
+    "latitude": 30.544649,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-08T21:46:08.439649"
+  },
+  "户部巷": {
+    "status": "success",
+    "name": "户部巷",
+    "address": "湖北省武汉市武昌区户部巷",
+    "longitude": 114.298458,
+    "latitude": 30.547949,
+    "level": "道路",
+    "confidence": 0,
+    "query_time": "2025-11-08T21:46:08.618600"
+  },
+  "昙华林": {
+    "status": "success",
+    "name": "昙华林",
+    "address": "湖北省武汉市武昌区昙华林",
+    "longitude": 114.311892,
+    "latitude": 30.551578,
+    "level": "道路",
+    "confidence": 0,
+    "query_time": "2025-11-08T21:46:08.805533"
+  },
+  "东湖磨山景区": {
+    "status": "success",
+    "name": "东湖磨山景区",
+    "address": "湖北省武汉市武昌区东湖磨山景区",
+    "longitude": 114.413148,
+    "latitude": 30.548737,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-08T21:46:08.991365"
+  },
+  "湖北省博物馆": {
+    "status": "success",
+    "name": "湖北省博物馆",
+    "address": "湖北省武汉市武昌区湖北省博物馆",
+    "longitude": 114.365446,
+    "latitude": 30.561506,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-08T21:46:09.182899"
+  },
+  "江汉路步行街": {
+    "status": "success",
+    "name": "江汉路步行街",
+    "address": "湖北省武汉市江汉区江汉路步行街",
+    "longitude": 114.29307,
+    "latitude": 30.579603,
+    "level": "道路",
+    "confidence": 0,
+    "query_time": "2025-11-08T21:46:10.619345"
+  },
+  "吉庆街": {
+    "status": "success",
+    "name": "吉庆街",
+    "address": "湖北省武汉市江汉区吉庆街",
+    "longitude": 114.291487,
+    "latitude": 30.585577,
+    "level": "道路",
+    "confidence": 0,
+    "query_time": "2025-11-08T21:46:10.718075"
+  },
+  "古德寺": {
+    "status": "success",
+    "name": "古德寺",
+    "address": "湖北省武汉市江岸区古德寺",
+    "longitude": 114.307288,
+    "latitude": 30.618717,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:10.682002"
+  },
+  "黎黄陂路": {
+    "status": "success",
+    "name": "黎黄陂路",
+    "address": "湖北省武汉市江岸区黎黄陂路",
+    "longitude": 114.299429,
+    "latitude": 30.587677,
+    "level": "道路",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:10.796639"
+  },
+  "江汉路": {
+    "status": "success",
+    "name": "江汉路",
+    "address": "湖北省武汉市江汉区江汉路",
+    "longitude": 114.285963,
+    "latitude": 30.585334,
+    "level": "道路",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:10.995390"
+  },
+  "汉口江滩": {
+    "status": "success",
+    "name": "汉口江滩",
+    "address": "湖北省武汉市江岸区汉口江滩",
+    "longitude": 114.31078,
+    "latitude": 30.595827,
+    "level": "住宅区",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:12.335395"
+  },
+  "江汉路happy站台": {
+    "status": "success",
+    "name": "江汉路happy站台",
+    "address": "湖北省武汉市江汉区江汉路Happy站台(江汉路步行街店)",
+    "longitude": 114.291676,
+    "latitude": 30.579519,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:12.514610"
+  },
+  "长江大桥": {
+    "status": "success",
+    "name": "长江大桥",
+    "address": "湖北省武汉市武昌区武汉长江大桥",
+    "longitude": 114.290288,
+    "latitude": 30.548613,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:12.621836"
+  },
+  "山海关路": {
+    "status": "success",
+    "name": "山海关路",
+    "address": "湖北省武汉市江岸区山海关路",
+    "longitude": 114.310534,
+    "latitude": 30.602237,
+    "level": "道路",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:13.990964"
+  },
+  "咸安妨": {
+    "status": "success",
+    "name": "咸安妨",
+    "address": "湖北省武汉市",
+    "longitude": 114.304569,
+    "latitude": 30.593354,
+    "level": "市",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:14.165162"
+  },
+  "中华路码头": {
+    "status": "success",
+    "name": "中华路码头",
+    "address": "湖北省武汉市武昌区中华路码头",
+    "longitude": 114.294686,
+    "latitude": 30.550602,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:14.412142"
+  },
+  "粮道街": {
+    "status": "success",
+    "name": "粮道街",
+    "address": "湖北省武汉市武昌区粮道街",
+    "longitude": 114.310378,
+    "latitude": 30.547418,
+    "level": "道路",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:14.596450"
+  },
+  "武汉大学": {
+    "status": "success",
+    "name": "武汉大学",
+    "address": "湖北省武汉市武昌区武汉大学",
+    "longitude": 114.364514,
+    "latitude": 30.536243,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:14.763722"
+  },
+  "东湖绿道": {
+    "status": "success",
+    "name": "东湖绿道",
+    "address": "湖北省武汉市洪山区东湖绿道",
+    "longitude": 114.413704,
+    "latitude": 30.577154,
+    "level": "道路",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:16.000019"
+  },
+  "东湖磨山": {
+    "status": "success",
+    "name": "东湖磨山",
+    "address": "湖北省武汉市武昌区武汉东湖磨山",
+    "longitude": 114.417914,
+    "latitude": 30.551175,
+    "level": "住宅区",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:16.103340"
+  },
+  "湖北美术馆": {
+    "status": "success",
+    "name": "湖北美术馆",
+    "address": "湖北省武汉市武昌区湖北美术馆",
+    "longitude": 114.365504,
+    "latitude": 30.563952,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:16.209969"
+  },
+  "楚河汉街": {
+    "status": "success",
+    "name": "楚河汉街",
+    "address": "湖北省武汉市武昌区楚河汉街",
+    "longitude": 114.335124,
+    "latitude": 30.559521,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T11:07:16.452892"
+  },
+  "武汉长江大桥": {
+    "status": "success",
+    "name": "武汉长江大桥",
+    "address": "湖北省武汉市武昌区武汉长江大桥",
+    "longitude": 114.290288,
+    "latitude": 30.548613,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T16:31:25.774115"
+  },
+  "江汉路Happy站台": {
+    "status": "success",
+    "name": "江汉路Happy站台",
+    "address": "湖北省武汉市江汉区江汉路Happy站台(江汉路步行街店)",
+    "longitude": 114.291676,
+    "latitude": 30.579519,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T16:31:26.017152"
+  },
+  "知音号": {
+    "status": "success",
+    "name": "知音号",
+    "address": "湖北省武汉市江岸区知音号(知音号码头店)",
+    "longitude": 114.312088,
+    "latitude": 30.595853,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T16:31:26.262491"
+  },
+  "咸安坊": {
+    "status": "success",
+    "name": "咸安坊",
+    "address": "湖北省武汉市江岸区咸安坊",
+    "longitude": 114.295924,
+    "latitude": 30.582745,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-09T16:31:27.550534"
+  },
+  "中华路码头轮渡": {
+    "status": "success",
+    "name": "中华路码头轮渡",
+    "address": "湖北省武汉市江汉区轮渡",
+    "longitude": 114.294907,
+    "latitude": 30.569523,
+    "level": "住宅区",
+    "confidence": 0,
+    "query_time": "2025-11-09T17:23:10.450342"
+  },
+  "江汉关博物馆": {
+    "status": "success",
+    "name": "江汉关博物馆",
+    "address": "湖北省武汉市江汉区江汉关博物馆",
+    "longitude": 114.297308,
+    "latitude": 30.576075,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-10T15:57:13.109932"
+  },
+  "凌波门": {
+    "status": "success",
+    "name": "凌波门",
+    "address": "湖北省武汉市武昌区凌波门",
+    "longitude": 114.370782,
+    "latitude": 30.543545,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-10T15:57:13.213102"
+  },
+  "东湖生态风景区": {
+    "status": "success",
+    "name": "东湖生态风景区",
+    "address": "湖北省武汉市武昌区武汉东湖",
+    "longitude": 114.404526,
+    "latitude": 30.588026,
+    "level": "住宅区",
+    "confidence": 0,
+    "query_time": "2025-11-10T15:57:13.664387"
+  },
+  "武汉轮渡": {
+    "status": "success",
+    "name": "武汉轮渡",
+    "address": "湖北省武汉市江汉区轮渡",
+    "longitude": 114.294907,
+    "latitude": 30.569523,
+    "level": "住宅区",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:28:14.649813"
+  },
+  "东湖风景区": {
+    "status": "success",
+    "name": "东湖风景区",
+    "address": "湖北省武汉市洪山区东湖风景区街道",
+    "longitude": 114.366856,
+    "latitude": 30.578896,
+    "level": "乡镇",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:28:14.765836"
+  },
+  "湖北省美术馆": {
+    "status": "success",
+    "name": "湖北省美术馆",
+    "address": "湖北省武汉市",
+    "longitude": 114.304569,
+    "latitude": 30.593354,
+    "level": "市",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:28:15.137288"
+  },
+  "品尝武汉特色小吃": {
+    "status": "success",
+    "name": "品尝武汉特色小吃",
+    "address": "湖北省武汉市",
+    "longitude": 114.304569,
+    "latitude": 30.593354,
+    "level": "市",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:43:38.234398"
+  },
+  "湖北省科技馆": {
+    "status": "success",
+    "name": "湖北省科技馆",
+    "address": "湖北省武汉市",
+    "longitude": 114.304569,
+    "latitude": 30.593354,
+    "level": "市",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:44:33.146502"
+  },
+  "萝卜快跑": {
+    "status": "success",
+    "name": "萝卜快跑",
+    "address": "湖北省武汉市",
+    "longitude": 114.304569,
+    "latitude": 30.593354,
+    "level": "市",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:44:33.254910"
+  },
+  "空轨九峰山站": {
+    "status": "success",
+    "name": "空轨九峰山站",
+    "address": "湖北省武汉市洪山区空轨九峰山站(有轨电车站)",
+    "longitude": 114.489724,
+    "latitude": 30.500037,
+    "level": "公交地铁站点",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:44:33.452566"
+  },
+  "悦活里超市": {
+    "status": "success",
+    "name": "悦活里超市",
+    "address": "湖北省武汉市洪山区悦活里超市(洪山万科广场ViviLand店)",
+    "longitude": 114.275865,
+    "latitude": 30.48228,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:44:33.725623"
+  },
+  "江汉关": {
+    "status": "success",
+    "name": "江汉关",
+    "address": "湖北省武汉市江汉区江汉关",
+    "longitude": 114.297299,
+    "latitude": 30.575569,
+    "level": "住宅区",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:44:33.838913"
+  },
+  "东湖美食": {
+    "status": "success",
+    "name": "东湖美食",
+    "address": "湖北省武汉市武昌区武汉东湖",
+    "longitude": 114.404526,
+    "latitude": 30.588026,
+    "level": "住宅区",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:45:49.021614"
+  },
+  "东湖": {
+    "status": "success",
+    "name": "东湖",
+    "address": "湖北省武汉市武昌区武汉东湖",
+    "longitude": 114.404526,
+    "latitude": 30.588026,
+    "level": "住宅区",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:46:46.171231"
+  },
+  "巴公房子": {
+    "status": "success",
+    "name": "巴公房子",
+    "address": "湖北省武汉市江岸区巴公房子",
+    "longitude": 114.299831,
+    "latitude": 30.586141,
+    "level": "兴趣点",
+    "confidence": 0,
+    "query_time": "2025-11-10T16:48:11.996030"
+  }
+}

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>武汉三日游路线规划 - WebGIS 可视化</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #map {
+            width: 60%;
+            height: 700px;
+            border-right: 3px solid #f0f0f0;
+        }
+
+        .itinerary {
+            width: 40%;
+            height: 700px;
+            overflow-y: auto;
+            padding: 30px;
+            background: #fafafa;
+        }
+
+        .day-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .day-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: #e0e0e0;
+            color: #666;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .day-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .day-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .route-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .route-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .time-badge {
+            background: #667eea;
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .duration-badge {
+            background: #f0f0f0;
+            color: #666;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .location {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .location-icon {
+            color: #e74c3c;
+            margin-right: 8px;
+        }
+
+        .description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .transport {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .transport-icon {
+            font-size: 24px;
+        }
+
+        .transport-info {
+            flex: 1;
+        }
+
+        .transport-type {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .transport-detail {
+            color: #888;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            padding: 25px;
+            background: white;
+            border-top: 3px solid #f0f0f0;
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        /* 自定义滚动条 */
+        .itinerary::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .itinerary::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .itinerary::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .itinerary::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            #map, .itinerary {
+                width: 100%;
+            }
+            
+            #map {
+                border-right: none;
+                border-bottom: 3px solid #f0f0f0;
+            }
+        }
+
+        /* Leaflet 弹窗样式优化 */
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .popup-content {
+            padding: 10px;
+        }
+
+        .popup-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .popup-time {
+            color: #888;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ 武汉三日游路线规划</h1>
+            <p>基于 Leaflet WebGIS 的智能旅游规划系统</p>
+        </div>
+
+        <div class="content">
+            <div id="map"></div>
+            
+            <div class="itinerary">
+                <div class="day-selector">
+                    <button class="day-btn active" onclick="switchDay(1)">第一天</button>
+                    <button class="day-btn" onclick="switchDay(2)">第二天</button>
+                    <button class="day-btn" onclick="switchDay(3)">第三天</button>
+                </div>
+
+                <div id="day-content"></div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value">3</div>
+                <div class="stat-label">旅游天数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">15</div>
+                <div class="stat-label">景点数量</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">~35km</div>
+                <div class="stat-label">总行程距离</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">¥150</div>
+                <div class="stat-label">预估交通费</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // 旅游路线数据
+        const travelData = {
+            day1: {
+                title: "第一天 - 历史文化之旅",
+                routes: [
+                    {
+                        time: "09:00",
+                        location: "黄鹤楼",
+                        lat: 30.5453,
+                        lng: 114.2965,
+                        duration: "建议游玩 2 小时",
+                        description: "江南三大名楼之一，登楼远眺长江美景，感受千年文化底蕴。门票70元。",
+                        transport: null
+                    },
+                    {
+                        time: "11:30",
+                        location: "户部巷",
+                        lat: 30.5502,
+                        lng: 114.2852,
+                        duration: "建议游玩 1.5 小时",
+                        description: "武汉小吃一条街，热干面、豆皮、鸭脖应有尽有。人均消费30-50元。",
+                        transport: {
+                            type: "🚗 打车",
+                            distance: "1.8 km",
+                            time: "约 8 分钟",
+                            cost: "起步价 ¥12"
+                        }
+                    },
+                    {
+                        time: "14:00",
+                        location: "昙华林",
+                        lat: 30.5558,
+                        lng: 114.2918,
+                        duration: "建议游玩 2 小时",
+                        description: "文艺小资聚集地，百年老建筑、特色咖啡馆、手工艺品店林立。",
+                        transport: {
+                            type: "🚶 步行",
+                            distance: "850 m",
+                            time: "约 12 分钟",
+                            cost: "免费"
+                        }
+                    },
+                    {
+                        time: "17:00",
+                        location: "武汉长江大桥",
+                        lat: 30.5505,
+                        lng: 114.2828,
+                        duration: "建议游玩 1 小时",
+                        description: "新中国第一座长江大桥，可步行观光，晚霞时分景色最美。",
+                        transport: {
+                            type: "🚗 打车",
+                            distance: "1.2 km",
+                            time: "约 6 分钟",
+                            cost: "起步价 ¥12"
+                        }
+                    },
+                    {
+                        time: "19:00",
+                        location: "江汉路步行街",
+                        lat: 30.5894,
+                        lng: 114.2722,
+                        duration: "建议游玩 2 小时",
+                        description: "百年商业老街，购物美食两不误，夜景璀璨。",
+                        transport: {
+                            type: "🚇 地铁2号线",
+                            distance: "5.2 km",
+                            time: "约 18 分钟",
+                            cost: "¥3"
+                        }
+                    }
+                ]
+            },
+            day2: {
+                title: "第二天 - 自然风光之旅",
+                routes: [
+                    {
+                        time: "08:30",
+                        location: "东湖绿道",
+                        lat: 30.5513,
+                        lng: 114.3756,
+                        duration: "建议游玩 3 小时",
+                        description: "中国最大城中湖，租自行车环湖骑行，享受清新空气。租车费20元/小时。",
+                        transport: null
+                    },
+                    {
+                        time: "12:00",
+                        location: "湖北省博物馆",
+                        lat: 30.5605,
+                        lng: 114.3719,
+                        duration: "建议游玩 2.5 小时",
+                        description: "镇馆之宝：越王勾践剑、曾侯乙编钟。免费但需预约。",
+                        transport: {
+                            type: "🚶 步行",
+                            distance: "1.5 km",
+                            time: "约 20 分钟",
+                            cost: "免费"
+                        }
+                    },
+                    {
+                        time: "15:00",
+                        location: "楚河汉街",
+                        lat: 30.5632,
+                        lng: 114.3548,
+                        duration: "建议游玩 2 小时",
+                        description: "现代化商业步行街，网红打卡地，各类餐饮品牌齐全。",
+                        transport: {
+                            type: "🚗 打车",
+                            distance: "2.3 km",
+                            time: "约 10 分钟",
+                            cost: "¥15"
+                        }
+                    },
+                    {
+                        time: "18:00",
+                        location: "光谷步行街",
+                        lat: 30.4752,
+                        lng: 114.4174,
+                        duration: "建议游玩 2.5 小时",
+                        description: "西班牙风情街区，美食、购物、娱乐一体化，夜景迷人。",
+                        transport: {
+                            type: "🚇 地铁2号线",
+                            distance: "12.5 km",
+                            time: "约 35 分钟",
+                            cost: "¥5"
+                        }
+                    }
+                ]
+            },
+            day3: {
+                title: "第三天 - 现代都市之旅",
+                routes: [
+                    {
+                        time: "09:00",
+                        location: "武汉大学",
+                        lat: 30.5352,
+                        lng: 114.3655,
+                        duration: "建议游玩 2.5 小时",
+                        description: "中国最美大学之一，春季樱花盛开（3-4月需预约）。",
+                        transport: null
+                    },
+                    {
+                        time: "12:00",
+                        location: "珞珈山街",
+                        lat: 30.5388,
+                        lng: 114.3612,
+                        duration: "建议游玩 1.5 小时",
+                        description: "大学美食街，物美价廉，感受学生时代氛围。人均20-30元。",
+                        transport: {
+                            type: "🚶 步行",
+                            distance: "600 m",
+                            time: "约 8 分钟",
+                            cost: "免费"
+                        }
+                    },
+                    {
+                        time: "14:30",
+                        location: "古琴台",
+                        lat: 30.5527,
+                        lng: 114.2653,
+                        duration: "建议游玩 1.5 小时",
+                        description: "俞伯牙、钟子期\"高山流水遇知音\"典故发源地。门票15元。",
+                        transport: {
+                            type: "🚗 打车",
+                            distance: "8.5 km",
+                            time: "约 25 分钟",
+                            cost: "¥28"
+                        }
+                    },
+                    {
+                        time: "17:00",
+                        location: "汉口江滩",
+                        lat: 30.6013,
+                        lng: 114.2812,
+                        duration: "建议游玩 2 小时",
+                        description: "长江边休闲公园，观江景、放风筝，傍晚散步最佳。",
+                        transport: {
+                            type: "🚇 地铁6号线",
+                            distance: "6.8 km",
+                            time: "约 22 分钟",
+                            cost: "¥4"
+                        }
+                    },
+                    {
+                        time: "19:30",
+                        location: "吉庆街",
+                        lat: 30.5952,
+                        lng: 114.2798,
+                        duration: "建议游玩 2 小时",
+                        description: "武汉夜生活代表，大排档、烧烤、小龙虾，体验地道江湖气息。",
+                        transport: {
+                            type: "🚶 步行",
+                            distance: "750 m",
+                            time: "约 10 分钟",
+                            cost: "免费"
+                        }
+                    }
+                ]
+            }
+        };
+
+        // 初始化地图
+        let map = L.map('map').setView([30.5582, 114.3055], 12);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let currentDay = 1;
+        let markers = [];
+        let polylines = [];
+
+        // 不同颜色方案
+        const colors = {
+            1: '#e74c3c',
+            2: '#3498db',
+            3: '#2ecc71'
+        };
+
+        // 切换日期
+        function switchDay(day) {
+            currentDay = day;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.day-btn').forEach((btn, index) => {
+                btn.classList.toggle('active', index + 1 === day);
+            });
+            
+            // 渲染内容
+            renderItinerary(day);
+            renderMap(day);
+        }
+
+        // 渲染行程列表
+        function renderItinerary(day) {
+            const data = travelData[`day${day}`];
+            let html = `<h2 style="color: #667eea; margin-bottom: 20px; font-size: 24px;">${data.title}</h2>`;
+            
+            data.routes.forEach((route, index) => {
+                html += `
+                    <div class="route-item">
+                        <div class="route-header">
+                            <span class="time-badge">${route.time}</span>
+                            <span class="duration-badge">${route.duration}</span>
+                        </div>
+                        <div class="location">
+                            <span class="location-icon">📍</span>
+                            ${route.location}
+                        </div>
+                        <div class="description">${route.description}</div>
+                        ${route.transport ? `
+                            <div class="transport">
+                                <span class="transport-icon">${route.transport.type.split(' ')[0]}</span>
+                                <div class="transport-info">
+                                    <div class="transport-type">${route.transport.type}</div>
+                                    <div class="transport-detail">
+                                        ${route.transport.distance} · ${route.transport.time} · ${route.transport.cost}
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('day-content').innerHTML = html;
+        }
+
+        // 渲染地图
+        function renderMap(day) {
+            // 清除旧标记和路线
+            markers.forEach(m => map.removeLayer(m));
+            polylines.forEach(p => map.removeLayer(p));
+            markers = [];
+            polylines = [];
+            
+            const data = travelData[`day${day}`];
+            const color = colors[day];
+            const coordinates = [];
+            
+            // 添加标记
+            data.routes.forEach((route, index) => {
+                const marker = L.marker([route.lat, route.lng], {
+                    icon: L.divIcon({
+                        className: 'custom-marker',
+                        html: `<div style="background: ${color}; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; border: 3px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.3);">${index + 1}</div>`,
+                        iconSize: [35, 35]
+                    })
+                }).addTo(map);
+                
+                marker.bindPopup(`
+                    <div class="popup-content">
+                        <div class="popup-title">${route.location}</div>
+                        <div class="popup-time">⏰ ${route.time} | ${route.duration}</div>
+                        <div style="margin-top: 8px; color: #666; font-size: 13px;">${route.description}</div>
+                    </div>
+                `);
+                
+                markers.push(marker);
+                coordinates.push([route.lat, route.lng]);
+            });
+            
+            // 绘制路线
+            if (coordinates.length > 1) {
+                const polyline = L.polyline(coordinates, {
+                    color: color,
+                    weight: 4,
+                    opacity: 0.7,
+                    dashArray: '10, 10',
+                    lineJoin: 'round'
+                }).addTo(map);
+                
+                polylines.push(polyline);
+                
+                // 自动调整地图视野
+                map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+            }
+        }
+
+        // 初始化显示第一天
+        switchDay(1);
+    </script>
+</body>
+</html>
